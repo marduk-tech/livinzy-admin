@@ -28,8 +28,6 @@ const ProjectsList: React.FC = () => {
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error fetching data</div>;
 
-  console.log(data);
-
   return (
     <>
       <Table
