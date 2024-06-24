@@ -16,6 +16,7 @@ import {
   useFetchFixtureMeta,
 } from "../../../hooks/use-meta";
 
+import { FixtureMeta } from "../../../interfaces/Meta";
 import { useDevice } from "../../../libs/device";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";

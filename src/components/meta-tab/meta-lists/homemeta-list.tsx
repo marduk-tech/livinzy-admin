@@ -1,16 +1,17 @@
-import { DeleteOutlined, } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import {
-    App as AntApp,
-    Button,
-    Col,
-    Row,
-    Table,
-    TableColumnType,
-    Typography,
+  App as AntApp,
+  Button,
+  Col,
+  Row,
+  Table,
+  TableColumnType,
+  Typography,
 } from "antd";
 import React, { useState } from "react";
 import { useHandleError } from "../../../hooks/use-handle-error";
 import { useDeleteHomeMeta, useFetchHomeMeta } from "../../../hooks/use-meta";
+import { HomeMeta } from "../../../interfaces/Meta";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
 import { DeletePopconfirm } from "../../delete-popconfirm";
@@ -41,7 +42,7 @@ const HomeMetaList: React.FC = () => {
     });
   };
 
-  const columns: TableColumnType<any>[] = [
+  const columns: TableColumnType<HomeMeta>[] = [
     {
       title: "Home Type",
       dataIndex: "homeType",
