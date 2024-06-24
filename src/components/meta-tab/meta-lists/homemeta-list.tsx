@@ -3,6 +3,7 @@ import {
   App as AntApp,
   Button,
   Col,
+  Flex,
   Row,
   Table,
   TableColumnType,
@@ -12,6 +13,7 @@ import React, { useState } from "react";
 import { useHandleError } from "../../../hooks/use-handle-error";
 import { useDeleteHomeMeta, useFetchHomeMeta } from "../../../hooks/use-meta";
 import { HomeMeta } from "../../../interfaces/Meta";
+import { useDevice } from "../../../libs/device";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
 import { DeletePopconfirm } from "../../delete-popconfirm";
@@ -22,6 +24,8 @@ const HomeMetaList: React.FC = () => {
   const { notification } = AntApp.useApp();
   const deleteMetaMutation = useDeleteHomeMeta();
   const { handleError } = useHandleError();
+
+  const { isMobile } = useDevice();
 
   const handleDelete = async ({ id }: { id: string }) => {
     await deleteMetaMutation.mutateAsync(
@@ -61,7 +65,7 @@ const HomeMetaList: React.FC = () => {
 
       render: (id: string, record) => {
         return (
-          <>
+          <Flex gap={isMobile ? 5 : 15} justify="end">
             <HomeMetaEditModal record={record} action="EDIT" />
 
             <DeletePopconfirm
@@ -71,13 +75,12 @@ const HomeMetaList: React.FC = () => {
               description="Are you sure you want to delete this home meta"
             >
               <Button
-                style={{ marginLeft: "15px" }}
                 type="default"
                 shape="default"
                 icon={<DeleteOutlined />}
               ></Button>
             </DeletePopconfirm>
-          </>
+          </Flex>
         );
       },
     },

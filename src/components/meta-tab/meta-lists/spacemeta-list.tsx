@@ -3,6 +3,7 @@ import {
   App as AntApp,
   Button,
   Col,
+  Flex,
   Row,
   Table,
   TableColumnType,
@@ -12,6 +13,7 @@ import React from "react";
 import { useHandleError } from "../../../hooks/use-handle-error";
 import { useDeleteSpaceMeta, useFetchSpaceMeta } from "../../../hooks/use-meta";
 import { SpaceMeta } from "../../../interfaces/Meta";
+import { useDevice } from "../../../libs/device";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
 import { DeletePopconfirm } from "../../delete-popconfirm";
@@ -23,6 +25,8 @@ const SpaceMetaList: React.FC = () => {
   const { notification } = AntApp.useApp();
   const deleteMetaMutation = useDeleteSpaceMeta();
   const { handleError } = useHandleError();
+
+  const { isMobile } = useDevice();
 
   const handleDelete = async ({ id }: { id: string }) => {
     await deleteMetaMutation.mutateAsync(
@@ -63,7 +67,7 @@ const SpaceMetaList: React.FC = () => {
 
       render: (id: string, record: SpaceMeta) => {
         return (
-          <>
+          <Flex gap={isMobile ? 5 : 15} justify="end">
             <SpaceMetaEditModal record={record} action="EDIT" />
 
             <DeletePopconfirm
@@ -73,13 +77,12 @@ const SpaceMetaList: React.FC = () => {
               description="Are you sure you want to delete this space meta"
             >
               <Button
-                style={{ marginLeft: "15px" }}
                 type="default"
                 shape="default"
                 icon={<DeleteOutlined />}
               ></Button>
             </DeletePopconfirm>
-          </>
+          </Flex>
         );
       },
     },

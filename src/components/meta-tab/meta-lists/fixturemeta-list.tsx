@@ -69,7 +69,7 @@ const FixtureMetaList: React.FC = () => {
 
       render: (id: string, record) => {
         return (
-          <Flex gap={isMobile ? 5 : 15}>
+          <Flex gap={isMobile ? 5 : 15} justify="end">
             <FixtureMetaEditModal record={record} action="EDIT" />
 
             <DeletePopconfirm
