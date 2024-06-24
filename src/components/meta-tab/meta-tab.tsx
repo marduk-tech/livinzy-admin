@@ -12,7 +12,7 @@ export function MetaTab() {
     <Tabs
       defaultActiveKey="1"
       tabPosition={isMobile ? "top" : "left"}
-      style={{ marginTop: 0 }}
+      style={{ marginTop: 20 }}
     >
       <TabPane tab="Home Meta" key="1">
         <HomeMetaList />
