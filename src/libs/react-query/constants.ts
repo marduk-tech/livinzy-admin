@@ -1,5 +1,7 @@
-export const queryKeys: { [key: string]: string } = {
+export const queryKeys = {
   getProjects: "getProjects",
   getDesigners: "getDesigners",
   getHomeMeta: "getHomeMeta",
+  getFixtureMeta: "getFixtureMeta",
+  getSpaceMeta: "spaceMeta",
 };

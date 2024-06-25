@@ -1,22 +1,22 @@
-import React from "react";
 import { Table } from "antd";
+import React from "react";
 import { useFetchProjects } from "../hooks/use-projects";
 
 // Define column configuration for table
 const columns = [
   {
     title: "Community Name",
-    dataIndex: "homeDetails.communityName",
+    dataIndex: ["homeDetails", "communityName"],
     key: "communityName",
   },
   {
     title: "Size",
-    dataIndex: "homeDetails.size",
+    dataIndex: ["homeDetails", "size"],
     key: "size",
   },
   {
     title: "Home type",
-    dataIndex: "homeDetails.homeType.homeType",
+    dataIndex: ["homeDetails", "homeType", "homeType"],
     key: "homeType",
   },
 ];
@@ -30,8 +30,12 @@ const ProjectsList: React.FC = () => {
 
   return (
     <>
-      {" "}
-      <Table dataSource={data} columns={columns} rowKey="_id" />{" "}
+      <Table
+        dataSource={data}
+        columns={columns}
+        loading={isLoading}
+        rowKey="_id"
+      />
     </>
   );
 };
