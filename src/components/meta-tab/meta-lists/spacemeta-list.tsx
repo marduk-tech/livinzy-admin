@@ -16,6 +16,7 @@ import { SpaceMeta } from "../../../interfaces/Meta";
 import { useDevice } from "../../../libs/device";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
+import { ColumnSearch } from "../../column-search";
 import { DeletePopconfirm } from "../../delete-popconfirm";
 import { SpaceMetaEditModal } from "../modals/spacemeta-edit-modal";
 
@@ -53,11 +54,13 @@ const SpaceMetaList: React.FC = () => {
       title: "Space Type",
       dataIndex: "spaceType",
       key: "spaceType",
+      ...ColumnSearch("spaceType"),
     },
     {
       title: "Description",
       dataIndex: "description",
       key: "description",
+      ...ColumnSearch("description"),
     },
     {
       title: "",

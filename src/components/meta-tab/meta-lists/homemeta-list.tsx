@@ -16,6 +16,7 @@ import { HomeMeta } from "../../../interfaces/Meta";
 import { useDevice } from "../../../libs/device";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
+import { ColumnSearch } from "../../column-search";
 import { DeletePopconfirm } from "../../delete-popconfirm";
 import { HomeMetaEditModal } from "../modals/homemeta-edit-modal";
 
@@ -51,11 +52,13 @@ const HomeMetaList: React.FC = () => {
       title: "Home Type",
       dataIndex: "homeType",
       key: "homeType",
+      ...ColumnSearch("homeType"),
     },
     {
       title: "Description",
       dataIndex: "description",
       key: "description",
+      ...ColumnSearch("description"),
     },
     {
       title: "",

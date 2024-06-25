@@ -20,6 +20,7 @@ import { FixtureMeta } from "../../../interfaces/Meta";
 import { useDevice } from "../../../libs/device";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
+import { ColumnSearch } from "../../column-search";
 import { DeletePopconfirm } from "../../delete-popconfirm";
 import { FixtureMetaEditModal } from "../modals/fixturemeta-edit-modal";
 
@@ -55,11 +56,13 @@ const FixtureMetaList: React.FC = () => {
       title: "Fixture Type",
       dataIndex: "fixtureType",
       key: "fixtureType",
+      ...ColumnSearch("fixtureType"),
     },
     {
       title: "Description",
       dataIndex: "description",
       key: "description",
+      ...ColumnSearch("description"),
     },
     {
       title: "",
