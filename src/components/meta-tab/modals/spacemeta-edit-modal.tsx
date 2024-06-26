@@ -1,11 +1,21 @@
-import { EditOutlined } from "@ant-design/icons";
-import { App as AntApp, Button, Flex, Form, Input, Modal } from "antd";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  App as AntApp,
+  Button,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Upload,
+  UploadFile,
+} from "antd";
 import { useEffect, useState } from "react";
 import { useHandleError } from "../../../hooks/use-handle-error";
 import {
   useCreateSpaceMeta,
   useUpdateSpaceMeta,
 } from "../../../hooks/use-meta";
+import { baseApiUrl } from "../../../libs/constants";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
 
@@ -21,6 +31,8 @@ export const SpaceMetaEditModal = ({
 
   const { notification } = AntApp.useApp();
 
+  const [imageList, setImageList] = useState<UploadFile[]>([]);
+
   const { handleError } = useHandleError();
 
   const updateMetaMutation = useUpdateSpaceMeta();
@@ -34,6 +46,17 @@ export const SpaceMetaEditModal = ({
         spaceType: record.spaceType,
         description: record.description,
       });
+
+      if (record.icon) {
+        setImageList([
+          {
+            uid: `0`,
+            name: `image0`,
+            status: "done",
+            url: record.icon,
+          },
+        ]);
+      }
     }
   }, [record, form]);
 
@@ -41,7 +64,25 @@ export const SpaceMetaEditModal = ({
     try {
       const values = await form.validateFields();
 
-      console.log(values);
+      if (!values.icon) {
+        values.icon = values?.icon;
+      } else {
+        if (values.icon.fileList.length > 0) {
+          values.icon = values.icon.fileList.map((file: any) => {
+            if (file.response) {
+              return file.response.data.Location;
+            }
+
+            if (file.status !== "removed") {
+              return file.url;
+            }
+
+            return "";
+          })[0];
+        } else {
+          values.icon = "";
+        }
+      }
 
       if (action === "EDIT") {
         await updateMetaMutation.mutateAsync(
@@ -74,7 +115,6 @@ export const SpaceMetaEditModal = ({
       });
 
       setOpen(false);
-      form.resetFields();
     } catch (error: unknown) {
       handleError(error);
     }
@@ -138,6 +178,25 @@ export const SpaceMetaEditModal = ({
               ]}
             >
               <Input.TextArea rows={4} />
+            </Form.Item>
+
+            <Form.Item label="Icon" name="icon">
+              <Upload
+                multiple={false}
+                maxCount={1}
+                name="image"
+                action={`${baseApiUrl}upload/single`}
+                listType="picture-card"
+                fileList={imageList}
+                onChange={({ fileList: newImageList }) =>
+                  setImageList(newImageList)
+                }
+              >
+                <div>
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              </Upload>
             </Form.Item>
           </Flex>
         </Form>
