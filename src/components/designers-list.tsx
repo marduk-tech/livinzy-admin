@@ -1,6 +1,7 @@
-import React, { useState } from "react";
 import { Table, Tag } from "antd";
+import React, { useState } from "react";
 import { useGetDesigners, useSaveDesigner } from "../hooks/use-designers";
+import { ColumnSearch } from "./column-search";
 
 // Define column configuration for table
 const columns = [
@@ -8,27 +9,26 @@ const columns = [
     title: "Designer Name",
     dataIndex: "designerName",
     key: "designerName",
+    ...ColumnSearch("designerName"),
   },
   {
     title: "Website",
     dataIndex: "websiteUrl",
     key: "websiteUrl",
     render: (websiteUrl: string) => <a href={websiteUrl}>{websiteUrl}</a>,
+    ...ColumnSearch("websiteUrl"),
   },
   {
-    title: "Profile Status",
-    dataIndex: "profileStatus",
-    key: "profileStatus",
-    render: (profileStatus: string) => (
-      <Tag color={profileStatus === "ACTIVE" ? "green" : "red"}>
-        {profileStatus}
-      </Tag>
-    ),
+    title: "Email",
+    dataIndex: "email",
+    key: "email",
+    ...ColumnSearch("email"),
   },
   {
     title: "Mobile",
     dataIndex: "mobile",
     key: "mobile",
+    ...ColumnSearch("mobile"),
   },
 ];
 
