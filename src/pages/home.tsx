@@ -2,6 +2,7 @@ import { Col, Row, Tabs } from "antd";
 import React from "react";
 import DesignersList from "../components/designers-list";
 
+import { FixtureMaterialsTab } from "../components/fixture-materials-tab/fixture-materials-tab";
 import { MetaTab } from "../components/meta-tab/meta-tab";
 import ProjectsList from "../components/projects-list";
 
@@ -20,6 +21,9 @@ const HomePage: React.FC = () => {
       </TabPane>
       <TabPane tab="Meta" key="3">
         <MetaTab />
+      </TabPane>
+      <TabPane tab="Fixture Materials" key="4">
+        <FixtureMaterialsTab />
       </TabPane>
     </Tabs>
   );
