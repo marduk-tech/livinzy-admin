@@ -57,6 +57,8 @@ export const SpaceMetaEditModal = ({
           },
         ]);
       }
+    } else {
+      form.resetFields();
     }
   }, [record, form]);
 

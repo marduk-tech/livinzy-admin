@@ -1,3 +1,5 @@
+import { MaterialsMeta } from "./Materials";
+
 export interface HomeMeta {
   _id: string;
   homeType: string;
@@ -10,9 +12,11 @@ export interface SpaceMeta {
   description: string;
 }
 
-
 export interface FixtureMeta {
   _id: string;
   fixtureType: string;
   description: string;
+  materials: MaterialsMeta[];
+  addedByDesignerId: string;
+  icon: string;
 }

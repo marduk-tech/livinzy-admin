@@ -54,6 +54,8 @@ export const HomeMetaEditModal = ({
           },
         ]);
       }
+    } else {
+      form.resetFields();
     }
   }, [record, form]);
 

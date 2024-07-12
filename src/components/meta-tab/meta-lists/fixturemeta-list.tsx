@@ -7,6 +7,7 @@ import {
   Row,
   Table,
   TableColumnType,
+  Tag,
   Typography,
 } from "antd";
 import React from "react";
@@ -58,11 +59,34 @@ const FixtureMetaList: React.FC = () => {
       key: "fixtureType",
       ...ColumnSearch("fixtureType"),
     },
+
     {
       title: "Description",
       dataIndex: "description",
       key: "description",
       ...ColumnSearch("description"),
+    },
+    {
+      title: "Materials",
+      dataIndex: "_id",
+      key: "_id",
+      width: "30%",
+      responsive: ["lg"],
+      render: (text, record) => {
+        if (record.materials.length === 0) {
+          return <Tag>No materials associated</Tag>;
+        }
+
+        return (
+          <Row gutter={[8, 8]}>
+            {record.materials.map((m) => (
+              <Col key={m._id}>
+                <Tag>{m.name}</Tag>
+              </Col>
+            ))}
+          </Row>
+        );
+      },
     },
     {
       title: "",

@@ -23,6 +23,7 @@ import {
 
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
+import { Loader } from "../../loader";
 
 export const MaterialVariationsEditModal = ({
   record,
@@ -106,100 +107,109 @@ export const MaterialVariationsEditModal = ({
     setOpen(false);
   };
 
-  return (
-    <>
-      {action === "EDIT" ? (
-        <Button
-          onClick={showModal}
-          type="default"
-          shape="default"
-          icon={<EditOutlined />}
-        ></Button>
-      ) : (
-        <Button type="primary" size="middle" onClick={showModal}>
-          Add
-        </Button>
-      )}
+  if (materialsMeta.isLoading) {
+    return <Loader />;
+  }
 
-      <Modal
-        title={
-          action === "EDIT"
-            ? "Edit Material variation"
-            : "Create Material variation"
-        }
-        open={open}
-        onOk={handleOk}
-        confirmLoading={
-          updateVariationMutation.isPending || createVariationMutation.isPending
-        }
-        onCancel={handleCancel}
-        okText="Confirm"
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          style={{ marginTop: 20 }}
-          onFinish={handleOk}
+  if (materialsMeta.isError) {
+    setOpen(false);
+    return;
+  }
+
+  if (materialsMeta.data) {
+    return (
+      <>
+        {action === "EDIT" ? (
+          <Button
+            onClick={showModal}
+            type="default"
+            shape="default"
+            icon={<EditOutlined />}
+          ></Button>
+        ) : (
+          <Button type="primary" size="middle" onClick={showModal}>
+            Add
+          </Button>
+        )}
+
+        <Modal
+          title={
+            action === "EDIT"
+              ? "Edit Material variation"
+              : "Create Material variation"
+          }
+          open={open}
+          onOk={handleOk}
+          confirmLoading={
+            updateVariationMutation.isPending ||
+            createVariationMutation.isPending
+          }
+          onCancel={handleCancel}
+          okText="Confirm"
         >
-          <Flex vertical>
-            <Form.Item
-              name="materialId"
-              label="Material"
-              rules={[{ required: true, message: "Please select a material" }]}
-            >
-              <Select
-                showSearch
-                placeholder="Select a material"
-                optionFilterProp="children"
-                filterOption={(input, option: any) =>
-                  option?.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
-                }
+          <Form
+            form={form}
+            layout="vertical"
+            style={{ marginTop: 20 }}
+            onFinish={handleOk}
+          >
+            <Flex vertical>
+              <Form.Item
+                name="materialId"
+                label="Material"
+                rules={[
+                  { required: true, message: "Please select a material" },
+                ]}
               >
-                {materialsMeta.data?.map((material: MaterialsMeta) => (
-                  <Select.Option key={material._id} value={material._id}>
-                    {material.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
+                <Select
+                  showSearch
+                  placeholder="Select a material"
+                  optionFilterProp="children"
+                  filterOption={(input, option: any) => {
+                    return (
+                      option?.label
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }}
+                  options={materialsMeta.data
+                    .filter(
+                      (item: MaterialsMeta, index: number, self: any) =>
+                        index ===
+                        self.findIndex((t: MaterialsMeta) => t._id === item._id)
+                    )
+                    .map((m: MaterialsMeta) => {
+                      return {
+                        label: m.name,
+                        value: m._id,
+                      };
+                    })}
+                ></Select>
+              </Form.Item>
 
-            <Form.Item
-              name={"name"}
-              label="Name"
-              rules={[{ required: true, message: "Please enter name" }]}
-            >
-              <Input />
-            </Form.Item>
+              <Form.Item
+                name={"name"}
+                label="Name"
+                rules={[{ required: true, message: "Please enter name" }]}
+              >
+                <Input />
+              </Form.Item>
 
-            <Form.Item
-              name={"costScore"}
-              label="Cost Score"
-              rules={[
-                { required: true, message: "Please enter the cost score" },
-              ]}
-            >
-              <InputNumber style={{ width: "100%" }} />
-            </Form.Item>
+              <Form.Item name={"costScore"} label="Cost Score">
+                <InputNumber style={{ width: "100%" }} />
+              </Form.Item>
 
-            <Form.Item
-              name={"benefit"}
-              label="Benefit"
-              rules={[{ required: true, message: "Please enter the benefit" }]}
-            >
-              <Input.TextArea rows={3} />
-            </Form.Item>
+              <Form.Item name={"benefit"} label="Benefit">
+                <Input.TextArea rows={3} />
+              </Form.Item>
 
-            <Form.Item
-              name={"drawback"}
-              label="Drawback"
-              rules={[{ required: true, message: "Please enter the drawback" }]}
-            >
-              <Input.TextArea rows={3} />
-            </Form.Item>
-          </Flex>
-        </Form>
-      </Modal>
-    </>
-  );
+              <Form.Item name={"drawback"} label="Drawback">
+                <Input.TextArea rows={3} />
+              </Form.Item>
+            </Flex>
+          </Form>
+        </Modal>
+      </>
+    );
+  }
 };

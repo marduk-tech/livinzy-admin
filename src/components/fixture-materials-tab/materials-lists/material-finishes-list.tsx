@@ -14,8 +14,9 @@ import { useHandleError } from "../../../hooks/use-handle-error";
 import {
   useDeleteMaterialFinishMeta,
   useFetchMaterialFinishesMeta,
+  useFetchMaterialsMeta,
 } from "../../../hooks/use-materials";
-import { MaterialFinish } from "../../../interfaces/Materials";
+import { MaterialFinish, MaterialsMeta } from "../../../interfaces/Materials";
 import { useDevice } from "../../../libs/device";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
@@ -27,6 +28,8 @@ import { MaterialFinishesEditModal } from "../modals/material-finishes-edit-moda
 const MaterialFinishesList: React.FC = () => {
   const { isMobile } = useDevice();
   const { isLoading, isError, data } = useFetchMaterialFinishesMeta();
+
+  const materialsMeta = useFetchMaterialsMeta();
 
   const { notification } = AntApp.useApp();
   const deleteMetaMutation = useDeleteMaterialFinishMeta();
@@ -57,6 +60,37 @@ const MaterialFinishesList: React.FC = () => {
       dataIndex: "name",
       key: "name",
       ...ColumnSearch("name"),
+    },
+    {
+      title: "Material",
+      dataIndex: "_id",
+      key: "_id",
+      render: (id: string, record) => {
+        // Find the material that matches the record's materialId
+        const material = materialsMeta.data.find(
+          (item: MaterialsMeta) => item._id === record.materialId
+        );
+
+        // Check if the material was found
+        const materialName = material ? material.name : "Unknown Material";
+
+        return materialName;
+      },
+      filters: materialsMeta.data
+        .filter(
+          (item: MaterialsMeta, index: number, self: any) =>
+            index === self.findIndex((t: MaterialsMeta) => t._id === item._id)
+        )
+        .map((m: MaterialsMeta) => {
+          return {
+            text: m.name,
+            value: m._id,
+          };
+        }),
+      filterSearch: true,
+      onFilter: (value, record) => {
+        return record.materialId.startsWith(value as string);
+      },
     },
     {
       title: "Cost Score",
@@ -128,7 +162,7 @@ const MaterialFinishesList: React.FC = () => {
       <Table
         dataSource={data}
         columns={columns}
-        loading={isLoading}
+        loading={isLoading || materialsMeta.isLoading}
         rowKey="_id"
       />
     </>
