@@ -15,6 +15,7 @@ export interface Project {
   homeDetails: HomeDetails;
   previewImageUrl: string;
   designerId: string;
+  updatedAt: string;
 }
 
 interface ProjectDetailsProps {

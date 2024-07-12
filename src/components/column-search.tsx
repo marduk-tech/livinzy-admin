@@ -1,8 +1,9 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, Input, Space } from "antd";
 import { FilterDropdownProps } from "antd/es/table/interface";
+import { nestedPropertyAccessor } from "../libs/lvnzy-helper";
 
-const handleReset = (
+export const handleReset = (
   clearFilters: () => void,
   setSelectedKeys: (arr: any) => void,
   confirm: () => void
@@ -60,9 +61,12 @@ export const ColumnSearch = (dataIndex: any) => ({
   filterIcon: (filtered: any) => (
     <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
   ),
-  onFilter: (value: any, record: any) =>
-    record[dataIndex]
+  onFilter: (value: any, record: any) => {
+    const nestedValue = nestedPropertyAccessor(record, dataIndex);
+    if (nestedValue === undefined) return false;
+    return nestedValue
       .toString()
       .toLowerCase()
-      .includes((value as string).toLowerCase()),
+      .includes((value as string).toLowerCase());
+  },
 });
