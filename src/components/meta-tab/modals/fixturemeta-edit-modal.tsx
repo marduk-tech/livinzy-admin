@@ -6,24 +6,47 @@ import {
   Form,
   Input,
   Modal,
+  Select,
   Upload,
   UploadFile,
 } from "antd";
 import { useEffect, useState } from "react";
 import { useHandleError } from "../../../hooks/use-handle-error";
+import { useFetchMaterialsMeta } from "../../../hooks/use-materials";
 import {
   useCreateFixtureMeta,
   useUpdateFixtureMeta,
 } from "../../../hooks/use-meta";
+import { MaterialsMeta } from "../../../interfaces/Materials";
+import { FixtureMeta } from "../../../interfaces/Meta";
 import { baseApiUrl } from "../../../libs/constants";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
+import { Loader } from "../../loader";
+
+function getExistingMaterials(
+  record: FixtureMeta,
+  materialsMeta: MaterialsMeta[]
+) {
+  return record.materials.map((material) => {
+    const foundMaterial = materialsMeta.find((m) => m._id === material._id);
+
+    if (!foundMaterial) {
+      return null;
+    }
+
+    return {
+      label: foundMaterial.name,
+      value: foundMaterial._id,
+    };
+  });
+}
 
 export const FixtureMetaEditModal = ({
   record,
   action,
 }: {
-  record?: any;
+  record?: FixtureMeta;
   action: "EDIT" | "ADD";
 }) => {
   const [open, setOpen] = useState(false);
@@ -35,16 +58,18 @@ export const FixtureMetaEditModal = ({
 
   const { handleError } = useHandleError();
 
-  const updateMetaMutation = useUpdateFixtureMeta();
+  const materialsMeta = useFetchMaterialsMeta();
 
+  const updateMetaMutation = useUpdateFixtureMeta();
   const createMetaMutation = useCreateFixtureMeta();
 
   useEffect(() => {
-    if (record && action === "EDIT") {
+    if (record && action === "EDIT" && materialsMeta.data) {
       form.setFieldsValue({
         ...record,
         fixtureType: record.fixtureType,
         description: record.description,
+        materials: getExistingMaterials(record, materialsMeta.data),
       });
 
       if (record.icon) {
@@ -57,8 +82,10 @@ export const FixtureMetaEditModal = ({
           },
         ]);
       }
+    } else {
+      form.resetFields();
     }
-  }, [record, form]);
+  }, [record, form, materialsMeta.data]);
 
   const handleOk = async () => {
     try {
@@ -84,9 +111,12 @@ export const FixtureMetaEditModal = ({
         }
       }
 
-      if (action === "EDIT") {
+      if (action === "EDIT" && record) {
         await updateMetaMutation.mutateAsync(
-          { fixtureMetaId: record._id, data: values },
+          {
+            fixtureMetaId: record._id,
+            data: values,
+          },
           {
             onError: (error: unknown) => {
               handleError(error);
@@ -128,79 +158,123 @@ export const FixtureMetaEditModal = ({
     setOpen(false);
   };
 
-  return (
-    <>
-      {action === "EDIT" ? (
-        <Button
-          onClick={showModal}
-          type="default"
-          shape="default"
-          icon={<EditOutlined />}
-        ></Button>
-      ) : (
-        <Button type="primary" size="middle" onClick={showModal}>
-          Add
-        </Button>
-      )}
+  if (materialsMeta.isLoading) {
+    return <Loader />;
+  }
 
-      <Modal
-        title={action === "EDIT" ? "Edit Fixture Meta" : "Create Fixture Meta"}
-        open={open}
-        onOk={handleOk}
-        confirmLoading={
-          updateMetaMutation.isPending || createMetaMutation.isPending
-        }
-        onCancel={handleCancel}
-        okText="Confirm"
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          style={{ marginTop: 20 }}
-          onFinish={handleOk}
+  if (materialsMeta.isError) {
+    setOpen(false);
+    return;
+  }
+
+  if (materialsMeta.data) {
+    return (
+      <>
+        {action === "EDIT" ? (
+          <Button
+            onClick={showModal}
+            type="default"
+            shape="default"
+            icon={<EditOutlined />}
+          ></Button>
+        ) : (
+          <Button type="primary" size="middle" onClick={showModal}>
+            Add
+          </Button>
+        )}
+
+        <Modal
+          title={
+            action === "EDIT" ? "Edit Fixture Meta" : "Create Fixture Meta"
+          }
+          open={open}
+          onOk={handleOk}
+          confirmLoading={
+            updateMetaMutation.isPending || createMetaMutation.isPending
+          }
+          onCancel={handleCancel}
+          okText="Confirm"
         >
-          <Flex vertical>
-            <Form.Item
-              name={"fixtureType"}
-              label="Fixture Type"
-              rules={[
-                { required: true, message: "Please enter the space type" },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item
-              name={"description"}
-              label="Description"
-              rules={[
-                { required: true, message: "Please enter the description" },
-              ]}
-            >
-              <Input.TextArea rows={4} />
-            </Form.Item>
-
-            <Form.Item label="Icon" name="icon">
-              <Upload
-                multiple={false}
-                maxCount={1}
-                name="image"
-                action={`${baseApiUrl}upload/single`}
-                listType="picture-card"
-                fileList={imageList}
-                onChange={({ fileList: newImageList }) =>
-                  setImageList(newImageList)
-                }
+          <Form
+            form={form}
+            layout="vertical"
+            style={{ marginTop: 20 }}
+            onFinish={handleOk}
+          >
+            <Flex vertical>
+              <Form.Item
+                name={"fixtureType"}
+                label="Fixture Type"
+                rules={[
+                  { required: true, message: "Please enter the space type" },
+                ]}
               >
-                <div>
-                  <PlusOutlined />
-                  <div style={{ marginTop: 8 }}>Upload</div>
-                </div>
-              </Upload>
-            </Form.Item>
-          </Flex>
-        </Form>
-      </Modal>
-    </>
-  );
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                name={"materials"}
+                label="Material"
+                rules={[{ required: true, message: "Please select materials" }]}
+              >
+                <Select
+                  mode="multiple"
+                  style={{ width: "100%" }}
+                  placeholder="Materials"
+                  filterOption={(input, option: any) => {
+                    return (
+                      option?.label
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }}
+                  options={materialsMeta.data
+                    .filter(
+                      (item: MaterialsMeta, index: number, self: any) =>
+                        index ===
+                        self.findIndex((t: MaterialsMeta) => t._id === item._id)
+                    )
+                    .map((m: MaterialsMeta) => {
+                      return {
+                        label: m.name,
+                        value: m._id,
+                      };
+                    })}
+                />
+              </Form.Item>
+
+              <Form.Item
+                name={"description"}
+                label="Description"
+                rules={[
+                  { required: true, message: "Please enter the description" },
+                ]}
+              >
+                <Input.TextArea rows={4} />
+              </Form.Item>
+
+              <Form.Item label="Icon" name="icon">
+                <Upload
+                  multiple={false}
+                  maxCount={1}
+                  name="image"
+                  action={`${baseApiUrl}upload/single`}
+                  listType="picture-card"
+                  fileList={imageList}
+                  onChange={({ fileList: newImageList }) =>
+                    setImageList(newImageList)
+                  }
+                >
+                  <div>
+                    <PlusOutlined />
+                    <div style={{ marginTop: 8 }}>Upload</div>
+                  </div>
+                </Upload>
+              </Form.Item>
+            </Flex>
+          </Form>
+        </Modal>
+      </>
+    );
+  }
 };

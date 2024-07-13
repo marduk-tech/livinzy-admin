@@ -13,9 +13,13 @@ import React from "react";
 import { useHandleError } from "../../../hooks/use-handle-error";
 import {
   useDeleteMaterialVariationMeta,
+  useFetchMaterialsMeta,
   useFetchMaterialVariationsMeta,
 } from "../../../hooks/use-materials";
-import { MaterialVariations } from "../../../interfaces/Materials";
+import {
+  MaterialsMeta,
+  MaterialVariations,
+} from "../../../interfaces/Materials";
 import { useDevice } from "../../../libs/device";
 import { queryKeys } from "../../../libs/react-query/constants";
 import { queryClient } from "../../../libs/react-query/query-client";
@@ -27,6 +31,8 @@ import { MaterialVariationsEditModal } from "../modals/material-variations-edit-
 const MaterialVariationsList: React.FC = () => {
   const { isMobile } = useDevice();
   const { isLoading, isError, data } = useFetchMaterialVariationsMeta();
+
+  const materialsMeta = useFetchMaterialsMeta();
 
   const { notification } = AntApp.useApp();
   const deleteMetaMutation = useDeleteMaterialVariationMeta();
@@ -57,6 +63,37 @@ const MaterialVariationsList: React.FC = () => {
       dataIndex: "name",
       key: "name",
       ...ColumnSearch("name"),
+    },
+    {
+      title: "Material",
+      dataIndex: "_id",
+      key: "_id",
+      render: (id: string, record) => {
+        // Find the material that matches the record's materialId
+        const material = materialsMeta.data.find(
+          (item: MaterialsMeta) => item._id === record.materialId
+        );
+
+        // Check if the material was found
+        const materialName = material ? material.name : "Unknown Material";
+
+        return materialName;
+      },
+      filters: materialsMeta.data
+        .filter(
+          (item: MaterialsMeta, index: number, self: any) =>
+            index === self.findIndex((t: MaterialsMeta) => t._id === item._id)
+        )
+        .map((m: MaterialsMeta) => {
+          return {
+            text: m.name,
+            value: m._id,
+          };
+        }),
+      filterSearch: true,
+      onFilter: (value, record) => {
+        return record.materialId.startsWith(value as string);
+      },
     },
     {
       title: "Cost Score",
@@ -128,7 +165,7 @@ const MaterialVariationsList: React.FC = () => {
       <Table
         dataSource={data}
         columns={columns}
-        loading={isLoading}
+        loading={isLoading || materialsMeta.isLoading}
         rowKey="_id"
       />
     </>
